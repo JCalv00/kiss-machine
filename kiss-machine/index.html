@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>💕 Kiss Machine 💕</title>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Quicksand', sans-serif;
+    min-height: 100vh;
+    background: linear-gradient(135deg, #FFD6E8 0%, #FFC0CB 40%, #FFB3C6 70%, #FF8FAB 100%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    overflow-x: hidden;
+    position: relative;
+  }
+
+  /* Corner hearts */
+  .corner-heart {
+    position: fixed;
+    font-size: 28px;
+    opacity: 0.35;
+    pointer-events: none;
+    animation: pulse-heart 2.5s ease-in-out infinite;
+  }
+  .ch-tl { top: 18px; left: 18px; animation-delay: 0s; }
+  .ch-tr { top: 18px; right: 18px; animation-delay: 0.4s; }
+  .ch-bl { bottom: 18px; left: 18px; animation-delay: 0.8s; }
+  .ch-br { bottom: 18px; right: 18px; animation-delay: 1.2s; }
+
+  @keyframes pulse-heart {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.25); }
+  }
+
+  /* Mini floating hearts background */
+  .bg-heart {
+    position: fixed;
+    pointer-events: none;
+    opacity: 0.15;
+    font-size: 22px;
+    animation: float-bg 6s ease-in-out infinite;
+  }
+  @keyframes float-bg {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-18px) rotate(10deg); }
+  }
+
+  /* Main card */
+  .card {
+    background: rgba(255, 255, 255, 0.72);
+    backdrop-filter: blur(12px);
+    border-radius: 36px;
+    padding: 2.5rem 2rem 2rem;
+    box-shadow: 0 8px 40px rgba(255, 105, 135, 0.25);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.2rem;
+    max-width: 420px;
+    width: 90vw;
+    position: relative;
+    z-index: 10;
+  }
+
+  .title {
+    font-size: clamp(1.6rem, 5vw, 2.2rem);
+    font-weight: 700;
+    color: #C2345A;
+    text-align: center;
+    line-height: 1.3;
+    letter-spacing: 0.5px;
+    text-shadow: 0 2px 8px rgba(194, 52, 90, 0.15);
+  }
+
+  .subtitle {
+    font-size: clamp(0.85rem, 2.5vw, 1rem);
+    color: #E07895;
+    text-align: center;
+    font-weight: 600;
+  }
+
+  /* Photo frame */
+  .photo-wrap {
+    position: relative;
+    cursor: pointer;
+    user-select: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  .photo-frame {
+    width: min(90vw, 400px);
+    height: min(90vw, 400px);
+    border-radius: 24px;
+    border: 5px solid #FF8FAB;
+    box-shadow: 0 6px 30px rgba(255, 105, 135, 0.35), 0 0 0 10px rgba(255, 192, 203, 0.4);
+    overflow: hidden;
+    position: relative;
+    transition: transform 0.15s;
+  }
+
+  .photo-frame img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+    pointer-events: none;
+  }
+
+  .photo-placeholder {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(135deg, #FFB3C6, #FF8FAB);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: center;
+    padding: 1rem;
+  }
+
+  .photo-placeholder .big-emoji { font-size: 3.5rem; }
+
+  .photo-wrap.bouncing .photo-frame {
+    animation: bounce-photo 0.6s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+  }
+  @keyframes bounce-photo {
+    0%, 100% { transform: scale(1); }
+    20% { transform: scale(1.12) rotate(-3deg); }
+    40% { transform: scale(0.93) rotate(3deg); }
+    60% { transform: scale(1.07) rotate(-2deg); }
+    80% { transform: scale(0.97) rotate(1deg); }
+  }
+
+  /* Kiss popup */
+  .kiss-popup {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    font-size: 3rem;
+    pointer-events: none;
+    z-index: 30;
+    animation: pop-kiss 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    white-space: nowrap;
+    text-shadow: 0 2px 10px rgba(255, 105, 135, 0.5);
+  }
+  @keyframes pop-kiss {
+    0% { transform: translate(-50%, -50%) scale(0) rotate(-15deg); opacity: 1; }
+    50% { transform: translate(-50%, -65%) scale(1.2) rotate(5deg); opacity: 1; }
+    80% { transform: translate(-50%, -75%) scale(1) rotate(-2deg); opacity: 1; }
+    100% { transform: translate(-50%, -90%) scale(0.8) rotate(0deg); opacity: 0; }
+  }
+
+  /* Kiss text bubble */
+  .kiss-text {
+    position: absolute;
+    bottom: -48px;
+    left: 50%;
+    transform: translateX(-50%) scale(0);
+    background: linear-gradient(135deg, #FF8FAB, #FF6B8A);
+    color: white;
+    font-weight: 700;
+    font-size: 1rem;
+    padding: 7px 18px;
+    border-radius: 20px;
+    pointer-events: none;
+    z-index: 30;
+    white-space: nowrap;
+    box-shadow: 0 4px 15px rgba(255, 105, 135, 0.4);
+    animation: text-pop 1s ease forwards;
+  }
+  @keyframes text-pop {
+    0% { transform: translateX(-50%) scale(0); opacity: 1; }
+    20% { transform: translateX(-50%) scale(1.1); opacity: 1; }
+    70% { transform: translateX(-50%) scale(1); opacity: 1; }
+    100% { transform: translateX(-50%) scale(0.9); opacity: 0; }
+  }
+
+  /* Flying particles */
+  .particle {
+    position: fixed;
+    pointer-events: none;
+    font-size: 1.6rem;
+    z-index: 50;
+    animation: fly-up 1.8s ease-out forwards;
+  }
+  @keyframes fly-up {
+    0% { opacity: 1; transform: translateY(0) rotate(0deg) scale(1); }
+    100% { opacity: 0; transform: translateY(-260px) rotate(360deg) scale(0.4); }
+  }
+
+  /* Counter */
+  .counter-box {
+    background: linear-gradient(135deg, #FFB3C6, #FF8FAB);
+    border-radius: 20px;
+    padding: 0.7rem 2rem;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(255, 143, 171, 0.35);
+  }
+  .counter-label {
+    font-size: 0.8rem;
+    color: rgba(255,255,255,0.85);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .counter-number {
+    font-size: 2.4rem;
+    font-weight: 700;
+    color: white;
+    line-height: 1.1;
+    text-shadow: 0 2px 8px rgba(194, 52, 90, 0.3);
+    transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  .counter-number.bump {
+    animation: bump-num 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  }
+  @keyframes bump-num {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.4); }
+  }
+
+  /* Button */
+  .kiss-btn {
+    background: linear-gradient(135deg, #FF8FAB, #FF6B8A);
+    color: white;
+    font-family: 'Quicksand', sans-serif;
+    font-size: 1.05rem;
+    font-weight: 700;
+    border: none;
+    border-radius: 50px;
+    padding: 0.85rem 2.2rem;
+    cursor: pointer;
+    box-shadow: 0 6px 20px rgba(255, 105, 135, 0.45);
+    transition: transform 0.15s, box-shadow 0.15s;
+    letter-spacing: 0.3px;
+  }
+  .kiss-btn:hover {
+    transform: translateY(-3px) scale(1.03);
+    box-shadow: 0 10px 28px rgba(255, 105, 135, 0.5);
+  }
+  .kiss-btn:active {
+    transform: translateY(0) scale(0.97);
+    box-shadow: 0 4px 12px rgba(255, 105, 135, 0.35);
+  }
+
+  /* Upload hint */
+  .upload-hint {
+    font-size: 0.78rem;
+    color: #E07895;
+    text-align: center;
+    font-weight: 600;
+  }
+</style>
+</head>
+<body>
+
+<!-- Corner hearts -->
+<div class="corner-heart ch-tl">💕</div>
+<div class="corner-heart ch-tr">💖</div>
+<div class="corner-heart ch-bl">🌸</div>
+<div class="corner-heart ch-br">💗</div>
+
+<!-- Background floating hearts -->
+<div class="bg-heart" style="top:12%;left:8%;animation-delay:0s">💓</div>
+<div class="bg-heart" style="top:25%;right:6%;animation-delay:1s">🌸</div>
+<div class="bg-heart" style="top:65%;left:5%;animation-delay:2s">💗</div>
+<div class="bg-heart" style="top:75%;right:9%;animation-delay:1.5s">💕</div>
+<div class="bg-heart" style="top:45%;left:3%;animation-delay:0.5s">🌺</div>
+<div class="bg-heart" style="top:50%;right:4%;animation-delay:2.5s">💓</div>
+
+<div class="card">
+  <div class="title">💕 Kiss Machine 💕</div>
+  <div class="subtitle">Klik foto buat mwah mwah mwah!</div>
+
+  <div class="photo-wrap" id="photoWrap" onclick="doKiss(event)">
+    <div class="photo-frame" id="photoFrame">
+      <img src="nalin.jpeg" alt="photo">
+    </div>
+  </div>
+
+  <div class="counter-box">
+    <div class="counter-label">Kisses Given 💋</div>
+    <div class="counter-number" id="counter">0</div>
+  </div>
+
+  <button class="kiss-btn" onclick="doKissBtn(event)">Give More Kisses 💕</button>
+</div>
+
+  <!-- Background Music -->
+  <audio id="bgMusic" loop>
+    <source src="chestpain.mp3" type="audio/mpeg">
+  </audio>
+
+  <div id="musicBtn" onclick="toggleMusic()" style="
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #FF8FAB, #FF6B8A);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(255, 105, 135, 0.45);
+  font-size: 22px;
+  z-index: 999;
+  transition: transform 0.2s;
+  " title="Toggle Music">🎵</div>
+
+<script>
+  const kissTexts = [
+    "Mwah 💋", "Muachh~ 💕", "Kiss For You 😘",
+    "Love Attack 💖", "Smooch 💋", "Mwuaah~ 💗",
+    "Chu~ 💋", "So Sweet 🍬💕", "You're Loved! 😍"
+  ];
+  const particles = ["❤️","🌸","💖","💗","💕","💓","🌺","✨","💝"];
+
+  let kissCount = 0;
+  let isBouncing = false;
+
+  function doKiss(e) {
+    triggerKiss(e.clientX, e.clientY);
+  }
+
+  function doKissBtn(e) {
+    const rect = document.getElementById('photoFrame').getBoundingClientRect();
+    triggerKiss(rect.left + rect.width/2, rect.top + rect.height/2);
+  }
+
+  function triggerKiss(cx, cy) {
+    kissCount++;
+    updateCounter();
+    triggerBounce();
+    showKissPopup();
+    spawnParticles(cx, cy);
+    playMwahSound();
+  }
+
+  function updateCounter() {
+    const el = document.getElementById('counter');
+    el.textContent = kissCount;
+    el.classList.remove('bump');
+    void el.offsetWidth;
+    el.classList.add('bump');
+  }
+
+  function triggerBounce() {
+    if (isBouncing) return;
+    const wrap = document.getElementById('photoWrap');
+    wrap.classList.add('bouncing');
+    isBouncing = true;
+    setTimeout(() => {
+      wrap.classList.remove('bouncing');
+      isBouncing = false;
+    }, 650);
+  }
+
+  function showKissPopup() {
+    const wrap = document.getElementById('photoWrap');
+    const old = wrap.querySelectorAll('.kiss-popup, .kiss-text');
+    old.forEach(el => el.remove());
+
+    const popup = document.createElement('div');
+    popup.className = 'kiss-popup';
+    popup.textContent = '💋';
+    wrap.appendChild(popup);
+    setTimeout(() => popup.remove(), 900);
+
+    const txt = document.createElement('div');
+    txt.className = 'kiss-text';
+    txt.textContent = kissTexts[Math.floor(Math.random() * kissTexts.length)];
+    wrap.appendChild(txt);
+    setTimeout(() => txt.remove(), 1100);
+  }
+
+  function spawnParticles(cx, cy) {
+    const count = 8 + Math.floor(Math.random() * 5);
+    for (let i = 0; i < count; i++) {
+      setTimeout(() => {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        p.textContent = particles[Math.floor(Math.random() * particles.length)];
+        const offsetX = (Math.random() - 0.5) * 120;
+        const offsetY = (Math.random() - 0.5) * 80;
+        p.style.left = (cx + offsetX) + 'px';
+        p.style.top = (cy + offsetY) + 'px';
+        p.style.animationDuration = (1.2 + Math.random() * 0.8) + 's';
+        p.style.fontSize = (1.2 + Math.random() * 1) + 'rem';
+        document.body.appendChild(p);
+        setTimeout(() => p.remove(), 2200);
+      }, i * 60);
+    }
+  }
+
+  function playMwahSound() {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      const t = ctx.currentTime;
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(420, t);
+      osc.frequency.exponentialRampToValueAtTime(600, t + 0.08);
+      osc.frequency.exponentialRampToValueAtTime(320, t + 0.22);
+      gain.gain.setValueAtTime(0, t);
+      gain.gain.linearRampToValueAtTime(0.28, t + 0.04);
+      gain.gain.exponentialRampToValueAtTime(0.001, t + 0.35);
+      osc.start(t);
+      osc.stop(t + 0.38);
+    } catch(e) {}
+  }
+</script>
+
+<script>
+  const music = document.getElementById('bgMusic');
+const btn = document.getElementById('musicBtn');
+let playing = false;
+
+function fadeInMusic() {
+    music.volume = 0;
+    music.play().catch(() => {});
+    const targetVolume = 0.25;
+    const duration = 4000;
+    const steps = 50;
+    const interval = duration / steps;
+    const increment = targetVolume / steps;
+
+    const fade = setInterval(() => {
+      if (music.volume < targetVolume - increment) {
+        music.volume = Math.min(music.volume + increment, targetVolume);
+      } else {
+        music.volume = targetVolume;
+        clearInterval(fade);
+      }
+    }, interval);
+
+    playing = true;
+    btn.textContent = '🎵';
+  }
+
+  function toggleMusic() {
+    if (playing) {
+      music.pause();
+      playing = false;
+      btn.textContent = '🔇';
+    } else {
+      fadeInMusic();
+    }
+  }
+  
+  music.play().then(() => {
+    fadeInMusic();
+  }).catch(() => {
+    function tryPlay() {
+      fadeInMusic();
+      document.removeEventListener('click', tryPlay);
+      document.removeEventListener('touchstart', tryPlay);
+    }
+    document.addEventListener('click', tryPlay);
+    document.addEventListener('touchstart', tryPlay);
+  });
+</script>
+</body>
+</html>
