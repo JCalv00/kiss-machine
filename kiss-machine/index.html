@@ -297,29 +297,6 @@
   <button class="kiss-btn" onclick="doKissBtn(event)">Give More Kisses 💕</button>
 </div>
 
-  <!-- Background Music -->
-  <audio id="bgMusic" loop>
-    <source src="chestpain.mp3" type="audio/mpeg">
-  </audio>
-
-  <div id="musicBtn" onclick="toggleMusic()" style="
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #FF8FAB, #FF6B8A);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  box-shadow: 0 4px 15px rgba(255, 105, 135, 0.45);
-  font-size: 22px;
-  z-index: 999;
-  transition: transform 0.2s;
-  " title="Toggle Music">🎵</div>
-
 <script>
   const kissTexts = [
     "Mwah 💋", "Muachh~ 💕", "Kiss For You 😘",
@@ -424,56 +401,6 @@
       osc.stop(t + 0.38);
     } catch(e) {}
   }
-</script>
-
-<script>
-  const music = document.getElementById('bgMusic');
-const btn = document.getElementById('musicBtn');
-let playing = false;
-
-function fadeInMusic() {
-    music.volume = 0;
-    music.play().catch(() => {});
-    const targetVolume = 0.25;
-    const duration = 4000;
-    const steps = 50;
-    const interval = duration / steps;
-    const increment = targetVolume / steps;
-
-    const fade = setInterval(() => {
-      if (music.volume < targetVolume - increment) {
-        music.volume = Math.min(music.volume + increment, targetVolume);
-      } else {
-        music.volume = targetVolume;
-        clearInterval(fade);
-      }
-    }, interval);
-
-    playing = true;
-    btn.textContent = '🎵';
-  }
-
-  function toggleMusic() {
-    if (playing) {
-      music.pause();
-      playing = false;
-      btn.textContent = '🔇';
-    } else {
-      fadeInMusic();
-    }
-  }
-  
-  music.play().then(() => {
-    fadeInMusic();
-  }).catch(() => {
-    function tryPlay() {
-      fadeInMusic();
-      document.removeEventListener('click', tryPlay);
-      document.removeEventListener('touchstart', tryPlay);
-    }
-    document.addEventListener('click', tryPlay);
-    document.addEventListener('touchstart', tryPlay);
-  });
 </script>
 </body>
 </html>
